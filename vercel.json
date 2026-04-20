@@ -4,8 +4,5 @@
   "devCommand": "npm run dev",
   "installCommand": "npm install",
   "framework": "nextjs",
-  "regions": ["cdg1", "bru1"],
-  "crons": [
-    {}
-  ]
+  "regions": ["cdg1", "bru1"]
 }
