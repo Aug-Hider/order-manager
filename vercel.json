@@ -6,9 +6,6 @@
   "framework": "nextjs",
   "regions": ["cdg1", "bru1"],
   "crons": [
-    {
-      "path": "/api/cron/archive-orders",
-      "schedule": "*/5 * * * *"
-    }
+    {}
   ]
 }
