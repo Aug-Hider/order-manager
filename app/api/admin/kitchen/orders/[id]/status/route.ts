@@ -4,29 +4,29 @@ import { orders } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { revalidatePath } from 'next/cache';
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.pizzeriaId)
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { status } = await req.json();
+  try {
+    const { id } = await params;
+    const { status } = await req.json();
 
-  const validStatuses = ['paid', 'preparing', 'ready', 'picked_up', 'cancelled'];
-  if (!validStatuses.includes(status))
-    return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
+    const result = await db.update(orders)
+      .set({ status, updatedAt: new Date() })
+      .where(eq(orders.id, id))
+      .returning();
 
-  const updates: any = { status, updatedAt: new Date() };
-  if (status === 'preparing') updates.preparingAt = new Date();
-  if (status === 'ready') updates.readyAt = new Date();
-  if (status === 'picked_up') updates.pickedUpAt = new Date();
-
-  await db.update(orders)
-    .set(updates)
-    .where(eq(orders.id, params.id));
-
-  return NextResponse.json({ success: true, status });
+    revalidatePath('/admin/kitchen');
+    return NextResponse.json({ success: true, status: result[0]?.status });
+  } catch (error) {
+    console.error('Erreur:', error);
+    return NextResponse.json({ error: 'Erreur' }, { status: 500 });
+  }
 }
