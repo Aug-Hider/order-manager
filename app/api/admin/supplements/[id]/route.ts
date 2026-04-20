@@ -16,17 +16,11 @@ export async function DELETE(
 
   try {
     const { id } = await params;
-
-    const result = await db.delete(supplements).where(eq(supplements.id, id)).returning();
-
-    if (result.length === 0) {
-      return NextResponse.json({ error: 'Supplément non trouvé' }, { status: 404 });
-    }
-
+    await db.delete(supplements).where(eq(supplements.id, id));
     revalidatePath('/admin/supplements');
     return NextResponse.json({ message: 'Supplément supprimé', success: true });
   } catch (error) {
-    console.error('Erreur suppression:', error);
+    console.error('Erreur:', error);
     return NextResponse.json({ error: 'Erreur suppression' }, { status: 500 });
   }
 }

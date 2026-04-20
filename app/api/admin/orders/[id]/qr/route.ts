@@ -15,7 +15,6 @@ export async function POST(
 
   try {
     const { id } = await params;
-
     const order = await db.query.orders.findFirst({
       where: eq(orders.id, id),
     });
@@ -24,10 +23,7 @@ export async function POST(
       return NextResponse.json({ error: 'Commande non trouvée' }, { status: 404 });
     }
 
-    // Générer l'URL du QR code
     const qrUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/admin/scan-qr?order=${id}`;
-
-    // Créer une entrée QR code
     const result = await db.insert(qrCodes).values({
       orderId: id,
       pizzeriaId: session.user.pizzeriaId,

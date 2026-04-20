@@ -17,29 +17,22 @@ export async function DELETE(
   try {
     const { id } = await params;
 
-    // Vérifier si la catégorie contient des pizzas
     const pizzasInCategory = await db.query.pizzas.findMany({
       where: eq(pizzas.categoryId, id),
     });
 
     if (pizzasInCategory.length > 0) {
       return NextResponse.json(
-        { error: `Cette catégorie contient ${pizzasInCategory.length} pizza(s). Veuillez les déplacer ou les supprimer avant de supprimer la catégorie.` },
+        { error: 'Impossible de supprimer une catégorie non vide' },
         { status: 400 }
       );
     }
 
-    const result = await db.delete(pizzaCategories).where(eq(pizzaCategories.id, id)).returning();
-
-    if (result.length === 0) {
-      return NextResponse.json({ error: 'Catégorie non trouvée' }, { status: 404 });
-    }
-
+    await db.delete(pizzaCategories).where(eq(pizzaCategories.id, id));
     revalidatePath('/admin/categories');
-    revalidatePath('/admin/menu');
     return NextResponse.json({ message: 'Catégorie supprimée', success: true });
   } catch (error) {
-    console.error('Erreur suppression:', error);
+    console.error('Erreur:', error);
     return NextResponse.json({ error: 'Erreur suppression' }, { status: 500 });
   }
 }

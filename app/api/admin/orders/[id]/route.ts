@@ -15,7 +15,6 @@ export async function GET(
 
   try {
     const { id } = await params;
-
     const order = await db.query.orders.findFirst({
       where: eq(orders.id, id),
     });

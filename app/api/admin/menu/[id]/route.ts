@@ -16,24 +16,11 @@ export async function DELETE(
 
   try {
     const { id } = await params;
-    
-    console.log('Suppression pizza:', id);
-
-    const result = await db.delete(pizzas)
-      .where(eq(pizzas.id, id))
-      .returning();
-
-    console.log('Résultat suppression:', result);
-
-    if (result.length === 0) {
-      return NextResponse.json({ error: 'Pizza non trouvée' }, { status: 404 });
-    }
-
+    await db.delete(pizzas).where(eq(pizzas.id, id));
     revalidatePath('/admin/menu');
-
     return NextResponse.json({ message: 'Pizza supprimée', success: true });
   } catch (error) {
-    console.error('Erreur suppression:', error);
+    console.error('Erreur:', error);
     return NextResponse.json({ error: 'Erreur suppression' }, { status: 500 });
   }
 }

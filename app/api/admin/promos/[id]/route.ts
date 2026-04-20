@@ -16,17 +16,11 @@ export async function DELETE(
 
   try {
     const { id } = await params;
-
-    const result = await db.delete(promotions).where(eq(promotions.id, id)).returning();
-
-    if (result.length === 0) {
-      return NextResponse.json({ error: 'Promo non trouvée' }, { status: 404 });
-    }
-
+    await db.delete(promotions).where(eq(promotions.id, id));
     revalidatePath('/admin/promos');
     return NextResponse.json({ message: 'Promo supprimée', success: true });
   } catch (error) {
-    console.error('Erreur suppression promo:', error);
+    console.error('Erreur:', error);
     return NextResponse.json({ error: 'Erreur suppression' }, { status: 500 });
   }
 }
